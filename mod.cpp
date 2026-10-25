@@ -1,0 +1,11 @@
+name = "Repair To Pristine Updated";
+picture = "RepairToPristineUpdated/gui/logo/rtp_logo.paa";
+logo = "RepairToPristineUpdated/gui/logo/rtp_logo.paa";
+logoSmall = "RepairToPristineUpdated/gui/logo/rtp_logo.paa";
+logoOver = "RepairToPristineUpdated/gui/logo/rtp_logo_over.paa";
+tooltip = "Repair To Pristine Updated";
+overview = "Repair items, weapons and vehicle parts up to Pristine - optionally even from Ruined - with vanilla repair kits. Every option is set in the server config.";
+action = "https://github.com/TryHackX/dayz-repair-to-pristine";
+author = "TryHackX";
+authorID = "76561199846115789";
+version = "2.1";
