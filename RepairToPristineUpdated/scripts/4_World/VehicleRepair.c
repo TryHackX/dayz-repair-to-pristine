@@ -99,7 +99,7 @@ class RTP_VehicleRepair
     static void LogRepair(EntityAI target, string zone, int levelBefore)
     {
         if (RepairToPristineUpdatedConfig.IsDebugEnabled())
-            Print("[RepairToPristineUpdated] Repaired vehicle " + target.GetType() + " zone '" + zone + "' level " + levelBefore + " -> " + target.GetHealthLevel(zone));
+            Print("[RepairToPristineUpdated] Repaired " + target.GetType() + " zone '" + zone + "' level " + levelBefore + " -> " + target.GetHealthLevel(zone));
     }
 }
 

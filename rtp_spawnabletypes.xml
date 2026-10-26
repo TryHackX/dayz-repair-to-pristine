@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<spawnabletypes>
+    <!-- a found toolbox sometimes still holds a few tools -->
+    <type name="RTP_Toolbox">
+        <attachments chance="0.40">
+            <item name="Pliers" chance="1.00"/>
+        </attachments>
+        <attachments chance="0.35">
+            <item name="Screwdriver" chance="1.00"/>
+        </attachments>
+        <attachments chance="0.30">
+            <item name="Wrench" chance="1.00"/>
+        </attachments>
+        <attachments chance="0.25">
+            <item name="Hammer" chance="1.00"/>
+        </attachments>
+        <attachments chance="0.15">
+            <item name="RTP_Ratchet" chance="1.00"/>
+        </attachments>
+        <attachments chance="0.15">
+            <item name="RTP_SteelBrush" chance="1.00"/>
+        </attachments>
+        <attachments chance="0.20">
+            <item name="DuctTape" chance="1.00"/>
+        </attachments>
+    </type>
+</spawnabletypes>

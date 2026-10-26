@@ -1,0 +1,252 @@
+{
+    "ConfigVersion": 4,
+    "RepairKitModifier": 0.8,
+    "PristineRepairKitModifier": 1.2,
+    "EnablePristineRepair": 1,
+    "EnableRuinedRepair": 0,
+    "RuinedRepairKitModifier": 2.5,
+    "DebugMode": 0,
+    "VehicleParts": {
+        "EnablePristineRepair": 1,
+        "EnableRuinedRepair": 0,
+        "RepairKitModifier": 1.0,
+        "PristineRepairKitModifier": 1.2,
+        "RuinedRepairKitModifier": 2.5
+    },
+    "VehicleChassis": {
+        "EnablePristineRepair": 1,
+        "EnableRuinedRepair": 0,
+        "RepairKitModifier": 1.0,
+        "PristineRepairKitModifier": 1.2,
+        "RuinedRepairKitModifier": 2.5
+    },
+    "VehicleEngine": {
+        "EnablePristineRepair": 1,
+        "EnableRuinedRepair": 0,
+        "RepairKitModifier": 1.0,
+        "PristineRepairKitModifier": 1.2,
+        "RuinedRepairKitModifier": 2.5
+    },
+    "PartKits": {
+        "Radiator": {
+            "Enabled": 0,
+            "EnablePristineRepair": 1,
+            "EnableRuinedRepair": 0,
+            "RepairModifier": 0.8,
+            "PristineRepairModifier": 1.2,
+            "RuinedRepairModifier": 2.5,
+            "Items": [
+                "CarRadiator",
+                "ExpansionHydraulicHoses"
+            ],
+            "Kits": [
+                {
+                    "ClassName": "DuctTape",
+                    "Cost": 25.0
+                },
+                {
+                    "ClassName": "EpoxyPutty",
+                    "Cost": 25.0
+                },
+                {
+                    "ClassName": "Blowtorch",
+                    "Cost": 25.0
+                }
+            ]
+        },
+        "SparkPlug": {
+            "Enabled": 0,
+            "EnablePristineRepair": 1,
+            "EnableRuinedRepair": 0,
+            "RepairModifier": 0.8,
+            "PristineRepairModifier": 1.2,
+            "RuinedRepairModifier": 2.5,
+            "Items": [
+                "SparkPlug",
+                "GlowPlug"
+            ],
+            "Kits": [
+                {
+                    "ClassName": "ElectronicRepairKit",
+                    "Cost": 10.0
+                }
+            ]
+        },
+        "Battery": {
+            "Enabled": 1,
+            "EnablePristineRepair": 1,
+            "EnableRuinedRepair": 0,
+            "RepairModifier": 0.8,
+            "PristineRepairModifier": 1.2,
+            "RuinedRepairModifier": 2.5,
+            "Items": [
+                "CarBattery",
+                "TruckBattery"
+            ],
+            "Kits": [
+                {
+                    "ClassName": "ElectronicRepairKit",
+                    "Cost": 25.0
+                }
+            ]
+        },
+        "Toolbox": {
+            "Enabled": 1,
+            "EnablePristineRepair": 1,
+            "EnableRuinedRepair": 0,
+            "RepairModifier": 0.8,
+            "PristineRepairModifier": 1.2,
+            "RuinedRepairModifier": 2.5,
+            "Items": [
+                "RTP_Toolbox"
+            ],
+            "Kits": [
+                {
+                    "ClassName": "EpoxyPutty",
+                    "Cost": 25.0
+                },
+                {
+                    "ClassName": "Blowtorch",
+                    "Cost": 25.0
+                }
+            ]
+        }
+    },
+    "ToolboxRepairs": {
+        "Engine": {
+            "Enabled": 1,
+            "EnablePristineRepair": 1,
+            "EnableRuinedRepair": 0,
+            "RepairModifier": 1.0,
+            "PristineRepairModifier": 1.2,
+            "RuinedRepairModifier": 2.5,
+            "Items": [
+                "CarScript",
+                "MotorbikeScript",
+                "BoatScript"
+            ],
+            "RepairTime": 10.0,
+            "ToolboxWear": 0.0,
+            "Tools": [
+                {
+                    "ClassName": "Hammer",
+                    "Wear": 3.0
+                },
+                {
+                    "ClassName": "Wrench",
+                    "Wear": 4.0
+                },
+                {
+                    "ClassName": "RTP_Ratchet",
+                    "Wear": 4.0
+                },
+                {
+                    "ClassName": "Pliers",
+                    "Wear": 3.0
+                },
+                {
+                    "ClassName": "Screwdriver",
+                    "Wear": 3.0
+                }
+            ]
+        },
+        "Radiator": {
+            "Enabled": 1,
+            "EnablePristineRepair": 1,
+            "EnableRuinedRepair": 0,
+            "RepairModifier": 0.8,
+            "PristineRepairModifier": 1.2,
+            "RuinedRepairModifier": 2.5,
+            "Items": [
+                "CarRadiator",
+                "ExpansionHydraulicHoses"
+            ],
+            "RepairTime": 6.0,
+            "ToolboxWear": 0.0,
+            "Tools": [
+                {
+                    "ClassName": "Pliers",
+                    "Wear": 3.0
+                },
+                {
+                    "ClassName": "DuctTape",
+                    "Wear": 15.0
+                }
+            ]
+        },
+        "SparkPlug": {
+            "Enabled": 1,
+            "EnablePristineRepair": 1,
+            "EnableRuinedRepair": 0,
+            "RepairModifier": 0.8,
+            "PristineRepairModifier": 1.2,
+            "RuinedRepairModifier": 2.5,
+            "Items": [
+                "SparkPlug",
+                "GlowPlug"
+            ],
+            "RepairTime": 5.0,
+            "ToolboxWear": 0.0,
+            "Tools": [
+                {
+                    "ClassName": "Pliers",
+                    "Wear": 2.0
+                },
+                {
+                    "ClassName": "RTP_SteelBrush",
+                    "Wear": 4.0
+                }
+            ]
+        },
+        "Battery": {
+            "Enabled": 1,
+            "EnablePristineRepair": 1,
+            "EnableRuinedRepair": 0,
+            "RepairModifier": 0.8,
+            "PristineRepairModifier": 1.2,
+            "RuinedRepairModifier": 2.5,
+            "Items": [
+                "CarBattery",
+                "TruckBattery",
+                "ExpansionHelicopterBattery",
+                "ExpansionAircraftBattery"
+            ],
+            "RepairTime": 6.0,
+            "ToolboxWear": 0.0,
+            "Tools": [
+                {
+                    "ClassName": "Screwdriver",
+                    "Wear": 3.0
+                },
+                {
+                    "ClassName": "DuctTape",
+                    "Wear": 15.0
+                }
+            ]
+        },
+        "BodyParts": {
+            "Enabled": 1,
+            "EnablePristineRepair": 1,
+            "EnableRuinedRepair": 0,
+            "RepairModifier": 1.0,
+            "PristineRepairModifier": 1.2,
+            "RuinedRepairModifier": 2.5,
+            "Items": [
+                "CarDoor",
+                "Motorbike_02_ShieldFront_ColorBase"
+            ],
+            "RepairTime": 8.0,
+            "ToolboxWear": 0.0,
+            "Tools": [
+                {
+                    "ClassName": "Hammer",
+                    "Wear": 4.0
+                },
+                {
+                    "ClassName": "EpoxyPutty",
+                    "Wear": 15.0
+                }
+            ]
+        }
+    }
+}

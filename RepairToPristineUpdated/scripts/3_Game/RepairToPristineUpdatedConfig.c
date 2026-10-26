@@ -38,6 +38,8 @@ class RepairToPristineUpdatedConfig
         WriteVehicleSettings(rpc, m_Settings.VehicleParts);
         WriteVehicleSettings(rpc, m_Settings.VehicleChassis);
         WriteVehicleSettings(rpc, m_Settings.VehicleEngine);
+        WritePartKitSettings(rpc, GetPartKitSettings());
+        WriteToolboxSettings(rpc, GetToolboxSettings());
 
         rpc.Send(null, RPC_SYNC_CONFIG, true, identity);
     }
@@ -58,6 +60,169 @@ class RepairToPristineUpdatedConfig
         ctx.Read(s.RepairKitModifier);
         ctx.Read(s.PristineRepairKitModifier);
         ctx.Read(s.RuinedRepairKitModifier);
+    }
+
+    private static void WriteGroupRules(ScriptRPC rpc, RTP_RepairGroup g)
+    {
+        rpc.Write(g.Enabled);
+        rpc.Write(g.EnablePristineRepair);
+        rpc.Write(g.EnableRuinedRepair);
+        rpc.Write(g.RepairModifier);
+        rpc.Write(g.PristineRepairModifier);
+        rpc.Write(g.RuinedRepairModifier);
+        rpc.Write(g.Items);
+    }
+
+    private static void ReadGroupRules(ParamsReadContext ctx, RTP_RepairGroup g)
+    {
+        ctx.Read(g.Enabled);
+        ctx.Read(g.EnablePristineRepair);
+        ctx.Read(g.EnableRuinedRepair);
+        ctx.Read(g.RepairModifier);
+        ctx.Read(g.PristineRepairModifier);
+        ctx.Read(g.RuinedRepairModifier);
+        g.Items = new TStringArray();
+        ctx.Read(g.Items);
+    }
+
+    private static void WriteKitGroup(ScriptRPC rpc, RTP_KitRepairGroup g)
+    {
+        WriteGroupRules(rpc, g);
+        rpc.Write(g.Kits.Count());
+        foreach (RTP_KitSetting kit : g.Kits)
+        {
+            rpc.Write(kit.ClassName);
+            rpc.Write(kit.Cost);
+        }
+    }
+
+    private static RTP_KitRepairGroup ReadKitGroup(ParamsReadContext ctx)
+    {
+        RTP_KitRepairGroup g = new RTP_KitRepairGroup();
+        ReadGroupRules(ctx, g);
+        g.Kits = new array<ref RTP_KitSetting>();
+        int count;
+        ctx.Read(count);
+        for (int i = 0; i < count; i++)
+        {
+            string className;
+            float cost;
+            ctx.Read(className);
+            ctx.Read(cost);
+            g.AddKit(className, cost);
+        }
+        return g;
+    }
+
+    private static void WriteToolboxGroup(ScriptRPC rpc, RTP_ToolboxRepairGroup g)
+    {
+        WriteGroupRules(rpc, g);
+        rpc.Write(g.RepairTime);
+        rpc.Write(g.ToolboxWear);
+        rpc.Write(g.Tools.Count());
+        foreach (RTP_ToolSetting tool : g.Tools)
+        {
+            rpc.Write(tool.ClassName);
+            rpc.Write(tool.Wear);
+        }
+    }
+
+    private static RTP_ToolboxRepairGroup ReadToolboxGroup(ParamsReadContext ctx)
+    {
+        RTP_ToolboxRepairGroup g = new RTP_ToolboxRepairGroup();
+        ReadGroupRules(ctx, g);
+        ctx.Read(g.RepairTime);
+        ctx.Read(g.ToolboxWear);
+        g.Tools = new array<ref RTP_ToolSetting>();
+        int count;
+        ctx.Read(count);
+        for (int i = 0; i < count; i++)
+        {
+            string className;
+            float wear;
+            ctx.Read(className);
+            ctx.Read(wear);
+            g.AddTool(className, wear);
+        }
+        return g;
+    }
+
+    private static void WritePartKitSettings(ScriptRPC rpc, RepairToPristineUpdatedPartKitSettings s)
+    {
+        WriteKitGroup(rpc, s.Radiator);
+        WriteKitGroup(rpc, s.SparkPlug);
+        WriteKitGroup(rpc, s.Battery);
+        WriteKitGroup(rpc, s.Toolbox);
+    }
+
+    private static void ReadPartKitSettings(ParamsReadContext ctx, RepairToPristineUpdatedPartKitSettings s)
+    {
+        s.Radiator = ReadKitGroup(ctx);
+        s.SparkPlug = ReadKitGroup(ctx);
+        s.Battery = ReadKitGroup(ctx);
+        s.Toolbox = ReadKitGroup(ctx);
+    }
+
+    private static void WriteToolboxSettings(ScriptRPC rpc, RepairToPristineUpdatedToolboxSettings s)
+    {
+        WriteToolboxGroup(rpc, s.Engine);
+        WriteToolboxGroup(rpc, s.Radiator);
+        WriteToolboxGroup(rpc, s.SparkPlug);
+        WriteToolboxGroup(rpc, s.Battery);
+        WriteToolboxGroup(rpc, s.BodyParts);
+    }
+
+    private static void ReadToolboxSettings(ParamsReadContext ctx, RepairToPristineUpdatedToolboxSettings s)
+    {
+        s.Engine = ReadToolboxGroup(ctx);
+        s.Radiator = ReadToolboxGroup(ctx);
+        s.SparkPlug = ReadToolboxGroup(ctx);
+        s.Battery = ReadToolboxGroup(ctx);
+        s.BodyParts = ReadToolboxGroup(ctx);
+    }
+
+    private static string Names(TStringArray list)
+    {
+        string res = "";
+        foreach (string name : list)
+        {
+            if (res != "")
+                res += ", ";
+            res += name;
+        }
+        return "[" + res + "]";
+    }
+
+    private static string GroupRules(RTP_RepairGroup g)
+    {
+        string rules = "enabled " + g.Enabled + ", pristine " + g.EnablePristineRepair + ", ruined " + g.EnableRuinedRepair;
+        return rules + ", x" + g.RepairModifier + " / x" + g.PristineRepairModifier + " / x" + g.RuinedRepairModifier + ", items " + Names(g.Items);
+    }
+
+    private static void PrintKitGroup(string name, RTP_KitRepairGroup g)
+    {
+        string kits = "";
+        foreach (RTP_KitSetting kit : g.Kits)
+            kits += " " + kit.ClassName + " " + kit.Cost + "%";
+        Print("[RepairToPristineUpdated] " + name + ": " + GroupRules(g) + ", kits" + kits);
+    }
+
+    private static void PrintToolboxGroup(string name, RTP_ToolboxRepairGroup g)
+    {
+        string tools = "";
+        foreach (RTP_ToolSetting tool : g.Tools)
+            tools += " " + tool.ClassName + " " + tool.Wear + "%";
+        Print("[RepairToPristineUpdated] " + name + ": " + GroupRules(g) + ", time " + g.RepairTime + " s, toolbox wear " + g.ToolboxWear + "%, tools" + tools);
+    }
+
+    private static void PrintToolboxSettings()
+    {
+        RepairToPristineUpdatedToolboxSettings s = GetToolboxSettings();
+        PrintToolboxGroup("ToolboxRepairs.Engine", s.Engine);
+        PrintToolboxGroup("ToolboxRepairs.Radiator", s.Radiator);
+        PrintToolboxGroup("ToolboxRepairs.SparkPlug", s.SparkPlug);
+        PrintToolboxGroup("ToolboxRepairs.Battery", s.Battery);
+        PrintToolboxGroup("ToolboxRepairs.BodyParts", s.BodyParts);
     }
 
     private static void PrintVehicleSettings(string name, RepairToPristineUpdatedVehicleSettings s)
@@ -93,6 +258,10 @@ class RepairToPristineUpdatedConfig
         ReadVehicleSettings(ctx, m_Settings.VehicleParts);
         ReadVehicleSettings(ctx, m_Settings.VehicleChassis);
         ReadVehicleSettings(ctx, m_Settings.VehicleEngine);
+        m_Settings.PartKits = new RepairToPristineUpdatedPartKitSettings();
+        ReadPartKitSettings(ctx, m_Settings.PartKits);
+        m_Settings.ToolboxRepairs = new RepairToPristineUpdatedToolboxSettings();
+        ReadToolboxSettings(ctx, m_Settings.ToolboxRepairs);
 
         Print("[RepairToPristineUpdated] ===== CLIENT CONFIG RECEIVED =====");
         Print("[RepairToPristineUpdated] ConfigVersion: " + m_Settings.ConfigVersion);
@@ -102,10 +271,21 @@ class RepairToPristineUpdatedConfig
         Print("[RepairToPristineUpdated] EnableRuinedRepair: " + m_Settings.EnableRuinedRepair);
         Print("[RepairToPristineUpdated] RuinedRepairKitModifier: " + m_Settings.RuinedRepairKitModifier);
         Print("[RepairToPristineUpdated] DebugMode: " + m_Settings.DebugMode);
+        PrintPartSettings();
         PrintVehicleSettings("VehicleParts", m_Settings.VehicleParts);
         PrintVehicleSettings("VehicleChassis", m_Settings.VehicleChassis);
         PrintVehicleSettings("VehicleEngine", m_Settings.VehicleEngine);
+        PrintToolboxSettings();
         Print("[RepairToPristineUpdated] ==================================");
+    }
+
+    private static void PrintPartSettings()
+    {
+        RepairToPristineUpdatedPartKitSettings s = GetPartKitSettings();
+        PrintKitGroup("PartKits.Radiator", s.Radiator);
+        PrintKitGroup("PartKits.SparkPlug", s.SparkPlug);
+        PrintKitGroup("PartKits.Battery", s.Battery);
+        PrintKitGroup("PartKits.Toolbox", s.Toolbox);
     }
 
     static void LoadConfig()
@@ -171,12 +351,60 @@ class RepairToPristineUpdatedConfig
                 needsUpdate = true;
             }
 
+            // version 4: kit repairs for radiators / plugs / batteries / the toolbox (PartKits) and the toolbox repairs
+            if (oldVersion < 4)
+            {
+                Print("[RepairToPristineUpdated] Migration: added PartKits and ToolboxRepairs settings");
+                needsUpdate = true;
+            }
+
             if (!loadedSettings.VehicleParts)
                 loadedSettings.VehicleParts = new RepairToPristineUpdatedVehicleSettings();
             if (!loadedSettings.VehicleChassis)
                 loadedSettings.VehicleChassis = new RepairToPristineUpdatedVehicleSettings();
             if (!loadedSettings.VehicleEngine)
                 loadedSettings.VehicleEngine = new RepairToPristineUpdatedVehicleSettings();
+
+            // the json loader leaves missing lists empty (an empty list is a valid setting), so a section that is
+            // not in the file at all gets the defaults
+            string text = ReadText(configPath);
+            bool newBatteryGroup = false;
+            if (!loadedSettings.PartKits || oldVersion < 4 || !text.Contains("\"PartKits\""))
+            {
+                loadedSettings.PartKits = new RepairToPristineUpdatedPartKitSettings();
+                loadedSettings.PartKits.SetDefaults();
+                newBatteryGroup = true;
+                needsUpdate = true;
+            }
+            else if (!loadedSettings.PartKits.Battery || loadedSettings.PartKits.Battery.IsBlank())
+            {
+                newBatteryGroup = true;
+            }
+            if (!loadedSettings.ToolboxRepairs || oldVersion < 4 || !text.Contains("\"ToolboxRepairs\""))
+            {
+                loadedSettings.ToolboxRepairs = new RepairToPristineUpdatedToolboxSettings();
+                loadedSettings.ToolboxRepairs.SetDefaults();
+                needsUpdate = true;
+            }
+            bool fixedKits = loadedSettings.PartKits.Validate();
+            bool fixedToolbox = loadedSettings.ToolboxRepairs.Validate();
+            if (newBatteryGroup)
+            {
+                // batteries followed the item settings before they got their own group - keep this server's values
+                RTP_KitRepairGroup battery = loadedSettings.PartKits.Battery;
+                battery.EnablePristineRepair = loadedSettings.EnablePristineRepair;
+                battery.EnableRuinedRepair = loadedSettings.EnableRuinedRepair;
+                battery.RepairModifier = loadedSettings.RepairKitModifier;
+                battery.PristineRepairModifier = loadedSettings.PristineRepairKitModifier;
+                battery.RuinedRepairModifier = loadedSettings.RuinedRepairKitModifier;
+                needsUpdate = true;
+                Print("[RepairToPristineUpdated] Migration: PartKits.Battery added with the item settings of this config");
+            }
+            if (fixedKits || fixedToolbox)
+            {
+                needsUpdate = true;
+                Print("[RepairToPristineUpdated] PartKits / ToolboxRepairs: missing groups added, values out of range corrected");
+            }
 
             bool clampedParts = ClampVehicleSettings(loadedSettings.VehicleParts);
             bool clampedChassis = ClampVehicleSettings(loadedSettings.VehicleChassis);
@@ -187,7 +415,7 @@ class RepairToPristineUpdatedConfig
                 Print("[RepairToPristineUpdated] Negative vehicle modifiers are not allowed, clamped to 0");
             }
 
-            loadedSettings.ConfigVersion = 3;
+            loadedSettings.ConfigVersion = 4;
             m_Settings = loadedSettings;
             
             if (needsUpdate)
@@ -205,14 +433,18 @@ class RepairToPristineUpdatedConfig
             Print("[RepairToPristineUpdated] EnableRuinedRepair: " + m_Settings.EnableRuinedRepair);
             Print("[RepairToPristineUpdated] RuinedRepairKitModifier: " + m_Settings.RuinedRepairKitModifier);
             Print("[RepairToPristineUpdated] DebugMode: " + m_Settings.DebugMode);
+            PrintPartSettings();
             PrintVehicleSettings("VehicleParts", m_Settings.VehicleParts);
             PrintVehicleSettings("VehicleChassis", m_Settings.VehicleChassis);
             PrintVehicleSettings("VehicleEngine", m_Settings.VehicleEngine);
+            PrintToolboxSettings();
             Print("[RepairToPristineUpdated] ==================================");
         }
         else
         {
             Print("[RepairToPristineUpdated] Config file not found, creating default config");
+            GetPartKitSettings();
+            GetToolboxSettings();
             SaveConfig();
             Print("[RepairToPristineUpdated] Created default config at: " + configPath);
             Print("[RepairToPristineUpdated] ===== DEFAULT CONFIG =====");
@@ -221,13 +453,29 @@ class RepairToPristineUpdatedConfig
             Print("[RepairToPristineUpdated] EnablePristineRepair: " + m_Settings.EnablePristineRepair);
             Print("[RepairToPristineUpdated] EnableRuinedRepair: " + m_Settings.EnableRuinedRepair);
             Print("[RepairToPristineUpdated] RuinedRepairKitModifier: " + m_Settings.RuinedRepairKitModifier);
+            PrintPartSettings();
             PrintVehicleSettings("VehicleParts", m_Settings.VehicleParts);
             PrintVehicleSettings("VehicleChassis", m_Settings.VehicleChassis);
             PrintVehicleSettings("VehicleEngine", m_Settings.VehicleEngine);
+            PrintToolboxSettings();
             Print("[RepairToPristineUpdated] ==============================");
         }
     }
     
+    private static string ReadText(string path)
+    {
+        string text = "";
+        string line;
+        FileHandle file = OpenFile(path, FileMode.READ);
+        if (file)
+        {
+            while (FGets(file, line) >= 0)
+                text += line;
+            CloseFile(file);
+        }
+        return text;
+    }
+
     static void SaveConfig()
     {
         string configPath = CONFIG_ROOT + CONFIG_FILE;
@@ -269,6 +517,28 @@ class RepairToPristineUpdatedConfig
     {
         if (!m_Settings) Init();
         return m_Settings.DebugMode;
+    }
+
+    static RepairToPristineUpdatedPartKitSettings GetPartKitSettings()
+    {
+        if (!m_Settings) Init();
+        if (!m_Settings.PartKits)
+        {
+            m_Settings.PartKits = new RepairToPristineUpdatedPartKitSettings();
+            m_Settings.PartKits.SetDefaults();
+        }
+        return m_Settings.PartKits;
+    }
+
+    static RepairToPristineUpdatedToolboxSettings GetToolboxSettings()
+    {
+        if (!m_Settings) Init();
+        if (!m_Settings.ToolboxRepairs)
+        {
+            m_Settings.ToolboxRepairs = new RepairToPristineUpdatedToolboxSettings();
+            m_Settings.ToolboxRepairs.SetDefaults();
+        }
+        return m_Settings.ToolboxRepairs;
     }
 
     //! Can something at this health level be repaired? lowestVanillaLevel = the worst-but-one level vanilla accepts

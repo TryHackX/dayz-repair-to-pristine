@@ -4,6 +4,17 @@ modded class PluginRepairing
     {
         int health_level = item.GetHealthLevel(damage_zone);
 
+        // items listed in a PartKits group follow only the rules of that group
+        RTP_KitRepairGroup group = RepairToPristineUpdatedConfig.GetPartKitSettings().Find(item);
+        if (group)
+        {
+            if (!group.CanRepairLevel(health_level))
+                return false;
+
+            CalculateHealth(player, repair_kit, item, specialty_weight, damage_zone, use_kit_qty);
+            return true;
+        }
+
         switch (health_level)
         {
             case GameConstants.STATE_PRISTINE:
@@ -40,8 +51,13 @@ modded class PluginRepairing
         int health_levels_count = item.GetNumberOfHealthLevels(damage_zone);
         int current_level = item.GetHealthLevel(damage_zone);
 
+        RTP_KitRepairGroup group = RepairToPristineUpdatedConfig.GetPartKitSettings().Find(item);
+        bool can_reach_pristine = RTP_CanReachPristine(item);
+        if (group)
+            can_reach_pristine = group.EnablePristineRepair;
+
         int target_level = Math.Clamp(current_level - 1, 0, health_levels_count - 1);
-        if (!RTP_CanReachPristine(item))
+        if (!can_reach_pristine)
         {
             target_level = Math.Clamp(target_level, GameConstants.STATE_WORN, health_levels_count - 1);
         }
@@ -49,10 +65,14 @@ modded class PluginRepairing
 
         // kit depletion: same rules as vanilla (only real repair kits), cost scaled by the configured modifier
         float kit_qty_before = -1;
-        if (kit && kit.ConfigGetInt("repairKitType") && kit.HasQuantity())
+        if (kit && kit.HasQuantity() && (group || kit.ConfigGetInt("repairKitType")))
         {
             kit_qty_before = kit.GetQuantity();
-            float kit_repair_cost = RTP_GetKitRepairCost(kit, item) * RepairToPristineUpdatedConfig.GetModifierForHealthLevel(current_level);
+            float kit_repair_cost;
+            if (group)
+                kit_repair_cost = Math.Max(group.GetKitCost(kit), 0) * group.GetModifier(current_level);
+            else
+                kit_repair_cost = RTP_GetKitRepairCost(kit, item) * RepairToPristineUpdatedConfig.GetModifierForHealthLevel(current_level);
             kit_repair_cost = Math.Clamp(kit_repair_cost, 0, 100);
 
             if (use_kit_qty)
@@ -91,6 +111,21 @@ modded class PluginRepairing
 
         int state = item.GetHealthLevel(damage_zone);
 
+        // items listed in a PartKits group: only the kits, health rules and costs of that group
+        RTP_KitRepairGroup group = RepairToPristineUpdatedConfig.GetPartKitSettings().Find(item);
+        if (group)
+        {
+            float group_cost = group.GetKitCost(repair_kit);
+            if (group_cost < 0 || !group.CanRepairLevel(state))
+                return false;
+
+            if (!repair_kit.HasQuantity())
+                return true;
+
+            float needed = group_cost * group.GetModifier(state);
+            return repair_kit.GetQuantity() >= needed;
+        }
+
         int lowest_vanilla_level = GameConstants.STATE_DAMAGED;
         if (item.CanBeRepairedToPristine())
             lowest_vanilla_level = GameConstants.STATE_WORN;
@@ -107,7 +142,8 @@ modded class PluginRepairing
             return false;
 
         array<int> repairable_with_types = new array<int>;
-        item.ConfigGetIntArray("repairableWithKits", repairable_with_types);
+        array<float> repair_costs = new array<float>;
+        RTP_GetRepairKits(item, repairable_with_types, repair_costs);
 
         foreach (int repairable_with_type : repairable_with_types)
         {
@@ -128,13 +164,24 @@ modded class PluginRepairing
         return repair_kit_type > 0 && repairable_with_type > 0 && repair_kit_type == repairable_with_type;
     }
 
+    //! repairableWithKits[] / repairCosts[] of the item config (read into locals: for a missing entry the out
+    //! parameter gets a new array instead of the passed one)
+    protected void RTP_GetRepairKits(Object item, notnull array<int> kits, notnull array<float> costs)
+    {
+        array<int> configKits = new array<int>();
+        array<float> configCosts = new array<float>();
+        item.ConfigGetIntArray("repairableWithKits", configKits);
+        item.ConfigGetFloatArray("repairCosts", configCosts);
+        kits.Copy(configKits);
+        costs.Copy(configCosts);
+    }
+
     protected float RTP_GetKitRepairCost(ItemBase repair_kit, Object item)
     {
         array<int> allowedRepairKitTypes = new array<int>();
         array<float> repairKitCosts = new array<float>();
 
-        item.ConfigGetIntArray("repairableWithKits", allowedRepairKitTypes);
-        item.ConfigGetFloatArray("repairCosts", repairKitCosts);
+        RTP_GetRepairKits(item, allowedRepairKitTypes, repairKitCosts);
 
         int repairKitType = repair_kit.ConfigGetInt("repairKitType");
 

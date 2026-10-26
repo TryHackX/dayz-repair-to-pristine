@@ -1,6 +1,6 @@
 # Repair To Pristine Updated
 
-Repair items and vehicle parts with vanilla repair kits up to Pristine - and optionally Ruined ones - fully configurable on the server. For DayZ 1.30 (Badlands).
+Repair items and vehicle parts with vanilla repair kits up to Pristine - and optionally Ruined ones - or with the new toolbox. Fully configurable on the server. For DayZ 1.30 (Badlands).
 
 [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3655699332) · DayZ 1.30 (Badlands) · author: TryHackX
 
@@ -22,6 +22,19 @@ If the mod is useful for you or your server, you can support further development
 - Vehicles: car, motorbike and boat parts, chassis and engine - each group with its own switches and kit cost modifiers.
 - Kit usage modifiers for normal, pristine and ruined repairs.
 - Ruined wheels are replaced with an undamaged wheel model after repair.
+- Optional kits for parts vanilla cannot repair: car radiators (Duct Tape, Epoxy Putty, Blowtorch) and spark / glow plugs (Electronic Repair Kit). Off by default.
+- Battery repair with the Electronic Repair Kit has its own group (on / off, cost, modifiers); the defaults match vanilla.
+- **Toolbox** with own models and textures: Toolbox, Ratchet and Steel Brush.
+  - The toolbox has a slot for every tool and cargo space. Its weight includes everything inside.
+  - With the right tools inside it repairs vehicle engines without a blowtorch (cars, motorbikes, boats, also DayZ Expansion helicopters, boats and cars).
+  - It also repairs detached radiators, spark and glow plugs, batteries, doors, hoods, trunks and motorbike shields.
+  - The toolbox itself is repaired with Epoxy Putty or a Blowtorch.
+- **Every repair group has its own settings:**
+  - on / off, worn -> Pristine and Ruined -> Badly Damaged,
+  - cost modifiers per health level,
+  - the repaired classes (any mod),
+  - kits with their costs, or tools with their own wear,
+  - toolbox wear and repair time.
 
 ## Configuration
 
@@ -33,7 +46,32 @@ If the mod is useful for you or your server, you can support further development
 | `EnableRuinedRepair` | 0 | Ruined items can be repaired |
 | `RepairKitModifier` / `PristineRepairKitModifier` / `RuinedRepairKitModifier` | 0.8 / 1.2 / 2.5 | kit usage per repair |
 | `VehicleParts` / `VehicleChassis` / `VehicleEngine` | pristine on, ruined off | the same switches and modifiers per vehicle group |
+| `PartKits` | Radiator off, SparkPlug off, Battery on, Toolbox on | kit repairs with their own rules (items without a vanilla kit, and batteries): `Enabled`, `EnablePristineRepair`, `EnableRuinedRepair`, three modifiers, `Items`, `Kits` (`ClassName`, `Cost` %) |
+| `ToolboxRepairs` | Engine, Radiator, SparkPlug, Battery, BodyParts on | the same rules plus `Tools` (`ClassName`, `Wear` %), `ToolboxWear` % (0 = off) and `RepairTime` s |
 | `DebugMode` | 0 | extra lines in the server log |
+
+A ruined engine destroys the whole vehicle in vanilla (every car, truck, motorbike and the boat). Nothing can repair such a wreck, and the server removes it after `CleanupLifetimeRuined` (330 s by default). So `EnableRuinedRepair` in `VehicleEngine` and `ToolboxRepairs` → `Engine` only works on mod vehicles whose engine does not destroy them.
+
+## Toolbox
+
+- **Engine:** hold the toolbox, look at the engine (engine off) and choose *Repair engine with toolbox*.
+  - Works on cars, motorbikes and boats, also on DayZ Expansion helicopters, boats and cars.
+  - Default tools: hammer, wrench, ratchet, pliers, screwdriver.
+- **Detached parts:** combine the toolbox with the part and choose *Repair with toolbox*.
+  - Radiator and Expansion hydraulic hoses: pliers + duct tape.
+  - Spark and glow plug (also the Expansion helicopter igniter plug): pliers + steel brush.
+  - Car, truck and Expansion helicopter / aircraft battery: screwdriver + duct tape.
+  - Door, hood, trunk (every car mod) and motorbike shield: hammer + epoxy putty.
+- **Tools** count in their slots and in the cargo.
+  - Every tool loses its own `Wear` % of health per repair. Duct tape, epoxy putty and the electronic kit lose that % of their quantity.
+  - The wear is multiplied by the group modifier of the repaired health level.
+- **Group settings:**
+  - `ToolboxWear` > 0 also wears the toolbox itself.
+  - `RepairTime` sets the repair time per group.
+  - `Items` takes class names from any mod.
+  - An empty `Tools` list means no tools are needed. A group removed from the file gets its defaults again.
+- **Example:** the whole default config is in `RepairToPristineConfig.default.json`.
+- **Loot:** the items spawn only after you add `rtp_types.xml` and `rtp_spawnabletypes.xml` from the mod folder to your mission's `cfgeconomycore.xml`. See `README.txt` for the exact lines.
 
 ## Installation
 
@@ -50,6 +88,10 @@ If the mod is useful for you or your server, you can support further development
 
 - DayZ 1.30 (Badlands), tested on a dedicated server.
 - No other mods required. Works together with Crafting Repair Tools.
+- DayZ Expansion: tested with Expansion Core, Licensed and Vehicles loaded.
+  - Helicopter and aircraft batteries, igniter plugs, hydraulic hoses and UAZ doors are repaired with the toolbox.
+  - So are the engines of the gyrocopter, the Zodiac boat and the UAZ.
+- Replaces the old "Repair My Car" mod. Its scripts do not load on DayZ 1.30, and its BlowTorch class breaks the vanilla blowtorch.
 
 ## License
 

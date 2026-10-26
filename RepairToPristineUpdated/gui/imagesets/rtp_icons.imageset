@@ -1,0 +1,54 @@
+ImageSetClass {
+ Name "rtp_icons"
+ RefSize 1024 512
+ Textures {
+  ImageSetTextureClass {
+   mpix 1
+   path "RepairToPristineUpdated/gui/imagesets/rtp_icons.edds"
+  }
+ }
+ Images {
+  ImageSetDefClass wrench {
+   Name "wrench"
+   Pos 0 0
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass ratchet {
+   Name "ratchet"
+   Pos 256 0
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass screwdriver {
+   Name "screwdriver"
+   Pos 512 0
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass steelbrush {
+   Name "steelbrush"
+   Pos 768 0
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass ducttape {
+   Name "ducttape"
+   Pos 0 256
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass epoxy {
+   Name "epoxy"
+   Pos 256 256
+   Size 256 256
+   Flags 0
+  }
+  ImageSetDefClass electronickit {
+   Name "electronickit"
+   Pos 512 256
+   Size 256 256
+   Flags 0
+  }
+ }
+}
